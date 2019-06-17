@@ -1,31 +1,29 @@
 version: "v1.0"
-name: Pipeline with parallel blocks
+name: Monorepo pipeline
 agent:
   machine:
     type: e1-standard-2
     os_image: ubuntu1804
 
 blocks:
-  - name: "Code quality checks"
+  - name: "Backend Lint"
     dependencies: []
     task:
       jobs:
       - name: "Lint"
         commands:
-          - sleep 10
           - echo "Lint completed"
 
-  - name: "Security checks"
+  - name: "Frontend Lint"
     dependencies: []
     task:
       jobs:
-      - name: "Scan"
+      - name: "Lint"
         commands:
-          - sleep 10
-          - echo "Scan completed"
+          - echo "Lint completed"
 
-  - name: "Dockerize"
-    dependencies: ["Code quality checks"]
+  - name: "Backend Build"
+    dependencies: ["Backend Lint"]
     task:
       jobs:
       - name: "Build"
@@ -33,50 +31,52 @@ blocks:
           - sleep 10
           - echo "Build completed"
 
-  - name: "Unit tests"
-    dependencies: ["Dockerize"]
+  - name: "Frontend Build"
+    dependencies: ["Frontend Lint"]
+    task:
+      jobs:
+      - name: "Build"
+        commands:
+          - sleep 10
+          - echo "Build completed"
+
+  - name: "Backend Unit tests"
+    dependencies: ["Backend Build"]
     task:
       jobs:
       - name: "Unit tests 1/3"
         commands:
-          - sleep 10
           - echo "Unit tests 1/3 completed"
       - name: "Unit tests 2/3"
         commands:
-          - sleep 10
           - echo "Unit tests 2/3 completed"
       - name: "Unit tests 3/3"
         commands:
-          - sleep 10
           - echo "Unit tests 3/3 completed"
 
-  - name: "Integration tests"
-    dependencies: ["Unit tests"]
+  - name: "Frontend Unit tests"
+    dependencies: ["Frontend Build"]
     task:
       jobs:
-      - name: "Integration tests 1/3"
+      - name: "Unit tests 1/2"
         commands:
-          - sleep 10
-          - echo "Integration tests 1/3 completed"
-      - name: "Integration tests 2/3"
+          - echo "Unit tests 1/2 completed"
+      - name: "Unit tests 2/2"
         commands:
-          - sleep 10
-          - echo "Integration tests 2/3 completed"
+          - echo "Unit tests 2/2 completed"
 
-  - name: "Long perf tests"
-    dependencies: ["Dockerize"]
+  - name: "E2E tests"
+    dependencies: ["Backend Unit tests", "Frontend Unit tests"]
     task:
       jobs:
-      - name: "Perf"
+      - name: "Nightwatch 🦉"
         commands:
-          - sleep 60
-          - echo "Perf completed"
+          - echo "Nightwatch done"
 
   - name: "Release candidate"
-    dependencies: ["Integration tests", "Long perf tests", "Security checks"]
+    dependencies: ["E2E tests"]
     task:
       jobs:
       - name: "Release"
         commands:
-          - sleep 10
           - echo "Release completed"
