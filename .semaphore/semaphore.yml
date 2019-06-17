@@ -1,82 +1,78 @@
 version: "v1.0"
-name: Pipeline with parallel blocks
+name: Cross-platform pipeline
 agent:
   machine:
     type: e1-standard-2
     os_image: ubuntu1804
 
 blocks:
-  - name: "Code quality checks"
+  - name: "Build for Android"
     dependencies: []
-    task:
-      jobs:
-      - name: "Lint"
-        commands:
-          - sleep 10
-          - echo "Lint completed"
-
-  - name: "Security checks"
-    dependencies: []
-    task:
-      jobs:
-      - name: "Scan"
-        commands:
-          - sleep 10
-          - echo "Scan completed"
-
-  - name: "Dockerize"
-    dependencies: ["Code quality checks"]
     task:
       jobs:
       - name: "Build"
         commands:
-          - sleep 10
           - echo "Build completed"
 
-  - name: "Unit tests"
-    dependencies: ["Dockerize"]
+  - name: "Build for iOS"
+    dependencies: []
     task:
       jobs:
-      - name: "Unit tests 1/3"
+      - name: "Build"
         commands:
-          - sleep 10
-          - echo "Unit tests 1/3 completed"
-      - name: "Unit tests 2/3"
-        commands:
-          - sleep 10
-          - echo "Unit tests 2/3 completed"
-      - name: "Unit tests 3/3"
-        commands:
-          - sleep 10
-          - echo "Unit tests 3/3 completed"
+          - echo "Build completed"
 
-  - name: "Integration tests"
-    dependencies: ["Unit tests"]
+  - name: "Build for Web"
+    dependencies: []
     task:
       jobs:
-      - name: "Integration tests 1/3"
+      - name: "Build"
         commands:
-          - sleep 10
-          - echo "Integration tests 1/3 completed"
-      - name: "Integration tests 2/3"
-        commands:
-          - sleep 10
-          - echo "Integration tests 2/3 completed"
+          - echo "Build completed"
 
-  - name: "Long perf tests"
-    dependencies: ["Dockerize"]
+  - name: "Test on Android"
+    dependencies: ["Build for Android"]
     task:
       jobs:
-      - name: "Perf"
+      - name: "Tests 1/2"
         commands:
-          - sleep 60
-          - echo "Perf completed"
+          - echo "Test completed"
+      - name: "Tests 2/2"
+        commands:
+          - echo "Test completed"
 
-  - name: "Release candidate"
-    dependencies: ["Integration tests", "Long perf tests", "Security checks"]
+  - name: "Test on iOS"
+    dependencies: ["Build for iOS"]
     task:
       jobs:
-      - name: "Release"
+      - name: "Tests"
         commands:
-          - sleep 10
+          - echo "Test completed"
+
+  - name: "Test on Web"
+    dependencies: ["Build for Web"]
+    task:
+      jobs:
+      - name: "Tests 1/3"
+        commands:
+          - echo "Test completed"
+      - name: "Tests 2/3"
+        commands:
+          - echo "Test completed"
+      - name: "Tests 3/3"
+        commands:
+          - echo "Test completed"
+
+  - name: "Release"
+    dependencies: ["Test on Android", "Test on iOS", "Test on Web"]
+    task:
+      jobs:
+      - name: "🚀 Google Play"
+        commands:
           - echo "Release completed"
+      - name: "🚀 AppStore"
+        commands:
+          - echo "Release completed"
+      - name: "🚀 Web"
+        commands:
+          - echo "Rollout completed"
