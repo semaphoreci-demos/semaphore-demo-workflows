@@ -1,0 +1,82 @@
+version: "v1.0"
+name: Pipeline with parallel blocks
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu1804
+
+blocks:
+  - name: "Code quality checks"
+    dependencies: []
+    task:
+      jobs:
+      - name: "Lint"
+        commands:
+          - sleep 10
+          - echo "Lint completed"
+
+  - name: "Security checks"
+    dependencies: []
+    task:
+      jobs:
+      - name: "Scan"
+        commands:
+          - sleep 10
+          - echo "Scan completed"
+
+  - name: "Dockerize"
+    dependencies: ["Code quality checks"]
+    task:
+      jobs:
+      - name: "Build"
+        commands:
+          - sleep 10
+          - echo "Build completed"
+
+  - name: "Unit tests"
+    dependencies: ["Dockerize"]
+    task:
+      jobs:
+      - name: "Unit tests 1/3"
+        commands:
+          - sleep 10
+          - echo "Unit tests 1/3 completed"
+      - name: "Unit tests 2/3"
+        commands:
+          - sleep 10
+          - echo "Unit tests 2/3 completed"
+      - name: "Unit tests 3/3"
+        commands:
+          - sleep 10
+          - echo "Unit tests 3/3 completed"
+
+  - name: "Integration tests"
+    dependencies: ["Unit tests"]
+    task:
+      jobs:
+      - name: "Integration tests 1/3"
+        commands:
+          - sleep 10
+          - echo "Integration tests 1/3 completed"
+      - name: "Integration tests 2/3"
+        commands:
+          - sleep 10
+          - echo "Integration tests 2/3 completed"
+
+  - name: "Long perf tests"
+    dependencies: ["Dockerize"]
+    task:
+      jobs:
+      - name: "Perf"
+        commands:
+          - sleep 60
+          - echo "Perf completed"
+
+  - name: "Release candidate"
+    dependencies: ["Integration tests", "Long perf tests", "Security checks"]
+    task:
+      jobs:
+      - name: "Release"
+        commands:
+          - sleep 10
+          - echo "Release completed"
