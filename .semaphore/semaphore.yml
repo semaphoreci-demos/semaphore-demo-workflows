@@ -17,6 +17,10 @@ blocks:
   - name: "Build for iOS"
     dependencies: []
     task:
+      agent:
+        machine:
+          type: a1-standard-4
+          os_image: macos-mojave
       jobs:
       - name: "Build"
         commands:
@@ -44,6 +48,10 @@ blocks:
   - name: "Test on iOS"
     dependencies: ["Build for iOS"]
     task:
+      agent:
+        machine:
+          type: a1-standard-4
+          os_image: macos-mojave
       jobs:
       - name: "Tests"
         commands:
