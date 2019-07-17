@@ -1,4 +1,4 @@
-version: "v1.0"
+version: v1.0
 name: Fan-in/Fan-out
 agent:
   machine:
