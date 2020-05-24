@@ -45,8 +45,8 @@ blocks:
         commands:
           - echo "Test completed"
 
-  - name: "Test on iOS"
-    dependencies: ["Build for iOS"]
+  - name: "Test on Android"
+    dependencies: ["Build for Android"]
     task:
       agent:
         machine:
